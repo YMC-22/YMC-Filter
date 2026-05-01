@@ -1215,24 +1215,27 @@ add_filter('ymc/filter/query/wp/allowed_callbacks', function($callbacks) {
  * @type array  $terms      List of term IDs to filter by.
  * @type int    $page_id    Current page ID where the query is being executed.
  * @type array  $extra_args {
- * Optional. An associative array of additional (secondary) parameters.
+ * Optional. An associative array of additional (secondary) custom parameters.
  *
- * @type int|string $data_from Start date/timestamp for custom filtering.
- * @type int|string $data_to   End date/timestamp for custom filtering.
- * }
  * }
  *
  * @return array Modified or extended WP_Query arguments.
  */
 function custom_query_modifier( $args ) {
+    
+   $page_id  = $args['page_id']; 
 
-   // Optional   
-   $page_id  = $args['page_id'];   
-   $extra    = $args['extra_args'] ?? [];
+   // Optional, custom parameters  
+   $extra     = $args['extra_args'] ?? [];
+   $rating    = $extra['rating'] ?? null;
 
+   // These values are automatically passed only under specific conditions:
+   // The Datepicker filter is used on the frontend (user selects a date range via jQuery UI Datepicker).
+   // The option "Enable Advanced Query → Query Type: Callback" is enabled in the plugin settings.
+   // These parameters are not available by default.
    $data_from = $extra['data_from'] ?? null;
    $data_to   = $extra['data_to'] ?? null;
-   $rating    = $extra['rating'] ?? null;
+   
 
    // Example 1:
    // $query_modifier = [];
