@@ -1071,6 +1071,63 @@ YMCFilterGrid.removeParams([
 YMCFilterGrid.removeParams('meta_query');
 ```
 
+`YMCFilterGrid.setExtraArgs(extraArgs, options = {})`
+
+The setExtraArgs() method allows you to pass custom parameters (extra_args) to the backend query callback.
+These parameters are sent with the AJAX request and can be accessed in PHP inside your custom WP_Query callback.
+
+This method is designed for advanced use cases where you need to extend or override query behavior dynamically.
+
+Parameters:
+- `extraArgs (object)`: An object containing custom key-value pairs to be passed to the backend.
+- `options (object) (optional)`:
+- `sendRequest (boolean)`: Whether to send the AJAX request after updating parameters. Default is true.
+- `resetPage (boolean)`: Whether to reset pagination to page 1. Default is false.
+
+Notes: 
+The extra_args object is merged with existing parameters.
+These values are available in the backend callback via $args['extra_args'].
+All values should be properly sanitized on the server side.
+This method is especially useful for custom filters, date ranges, and non-standard query logic.
+
+Usage Examples:
+```js
+// Basic usage: pass custom parameter
+YMCFilterGrid.setExtraArgs({
+  custom_flag: 'featured'
+});
+
+// Pass multiple custom parameters
+YMCFilterGrid.setExtraArgs({
+  data_from: 1700000000,
+  data_to: 1705000000,
+  rating: 5
+});
+
+
+// Reset pagination when updating extra_args
+YMCFilterGrid.setExtraArgs(
+  {
+    category_type: 'books'
+  },
+  {
+    resetPage: true
+  }
+);
+
+// Reset pagination when updating extra_args
+YMCFilterGrid.setExtraArgs(
+  {
+    category_type: 'books'
+  },
+  {
+    resetPage: true
+  }
+);
+
+```
+
+
 `YMCFilterGrid.resetFilter(sendRequest = true)`
 
 The resetFilter() method resets the grid to its default (initial) state by clearing all active filters and restoring base query parameters.
@@ -1169,22 +1226,38 @@ add_filter('ymc/filter/query/wp/allowed_callbacks', function($callbacks) {
  */
 function custom_query_modifier( $args ) {
 
-   // Optional
-   // $data_from = $args['extra_args']['data_from'] ?? null;
-   // $data_to   = $args['extra_args']['data_to']   ?? null;
-   // $page_id   = $args['page_id'];
+   // Optional   
+   $page_id  = $args['page_id'];   
+   $extra    = $args['extra_args'] ?? [];
 
-    return [
-        'post_type'       => ['post', 'book'],
-        'posts_per_page'  => 10,
-        'tax_query' => [
-            [
-                'taxonomy' => 'category',
-                'field' => 'id',
-                'terms' => [6, 7, 15]
-            ]
-        ]		
-    ];
+   $data_from = $extra['data_from'] ?? null;
+   $data_to   = $extra['data_to'] ?? null;
+   $rating    = $extra['rating'] ?? null;
+
+   // Example 1:
+   // $query_modifier = [];
+
+   //  if ( $rating ) {
+   //      $query_modifier['meta_query'][] = [
+   //          'key'     => 'rating',
+   //          'value'   => $rating,
+   //          'compare' => '='
+   //      ];
+   //  }
+   // return $query_modifier;
+
+   // OR Example 2:
+   return [
+      'post_type'  => ['post', 'book'],
+      'posts_per_page'  => 10,
+      'tax_query' => [
+         [
+            'taxonomy' => 'category',
+            'field' => 'id',
+            'terms' => [6, 7, 15]
+         ]
+      ]		
+   ];
 }
 ```
 
