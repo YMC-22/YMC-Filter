@@ -1247,13 +1247,7 @@ function custom_query_modifier( $args ) {
 
    // Custom parameters passed from JS (setExtraArgs)
    $extra  = $args['extra_args'] ?? [];
-
-   $rating = $extra['rating'] ?? null;
-
-   // Date range parameters (automatically injected when using Datepicker filter)
-   // See plugin settings: Advanced → Query Type → Callback
-   $data_from = $extra['data_from'] ?? null;
-   $data_to   = $extra['data_to'] ?? null;
+   $rating = $extra['rating'] ?? null;  
 
    // Example 1:
    // if ( $rating ) {
@@ -1268,7 +1262,39 @@ function custom_query_modifier( $args ) {
    //     ];
    // }
 
+
    // Example 2:
+   // Date range parameters (automatically injected when using Datepicker filter)
+   // See plugin settings: Advanced → Query Type → Callback
+   // When using date range parameters: 
+   // You must disable the default post date filter (date_query), otherwise it may conflict with your custom query logic.
+   $data_from = $extra['data_from'] ?? null;
+   $data_to   = $extra['data_to'] ?? null;
+
+   /*
+   $query_modifier = [
+      'meta_key'   => 'date',
+      'orderby'    => 'meta_value_num',
+      'order'      => 'DESC',
+
+      // Disable default WP date filter
+      'date_query' => null,
+   ];
+
+   if ( $data_from && $data_to ) {
+      $query_modifier['meta_query'][] = [
+         'key'     => 'date',
+         'value'   => [$data_from, $data_to],
+         'compare' => 'BETWEEN',
+         'type'    => 'NUMERIC'
+      ];
+   }
+
+    return $query_modifier;
+    */
+
+
+   // Example 3:
    return [
       'post_type'  => ['post', 'book'],
       'posts_per_page'  => 10,
