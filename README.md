@@ -1210,48 +1210,65 @@ add_filter('ymc/filter/query/wp/allowed_callbacks', function($callbacks) {
  * Callback function to modify WP_Query arguments.
  *
  * @param array $args {
- * An associative array of context data passed to the callback.
+ *     An associative array of context data passed to the callback.
  *
- * @type array  $post_type  List of post types to query.
- * @type array  $taxonomy   List of taxonomy slugs relevant to the query.
- * @type array  $terms      List of term IDs to filter by.
- * @type int    $page_id    Current page ID where the query is being executed.
- * @type array  $extra_args {
- * Optional. An associative array of additional (secondary) custom parameters.
+ *     @type array $post_type  List of post types to query.
+ *     @type array $taxonomy   List of taxonomy slugs relevant to the query.
+ *     @type array $terms      List of term IDs to filter by.
+ *     @type int   $page_id    Current page ID where the query is being executed.
  *
+ *     @type array $extra_args {
+ *         Optional. An associative array of additional custom parameters.
+ *
+ *         These parameters can be passed dynamically from JavaScript using:
+ *         YMCFilterGrid.setExtraArgs({...})
+ *
+ *         Example (JS):
+ *         YMCFilterGrid.setExtraArgs({
+ *             rating: 5,
+ *             custom_flag: 'featured'
+ *         });
+ *
+ *         Then in PHP:
+ *         $args['extra_args']['rating'] → 5
+ *         $args['extra_args']['custom_flag'] → 'featured'
+ *
+ *         Note:
+ *         - Available only when "Advanced Query → Query Type: Callback" is enabled.
+ *         - All values should be sanitized before use.
+ *     }
  * }
  *
  * @return array Modified or extended WP_Query arguments.
  */
 function custom_query_modifier( $args ) {
-    
+
    $page_id  = $args['page_id']; 
 
-   // Optional, custom parameters  
-   $extra     = $args['extra_args'] ?? [];
-   $rating    = $extra['rating'] ?? null;
+   // Custom parameters passed from JS (setExtraArgs)
+   $extra  = $args['extra_args'] ?? [];
 
-   // These values are automatically passed only under specific conditions:
-   // The Datepicker filter is used on the frontend (user selects a date range via jQuery UI Datepicker).
-   // The option "Enable Advanced Query → Query Type: Callback" is enabled in the plugin settings.
-   // These parameters are not available by default.
+   $rating = $extra['rating'] ?? null;
+
+   // Date range parameters (automatically injected when using Datepicker filter)
+   // See plugin settings: Advanced → Query Type → Callback
    $data_from = $extra['data_from'] ?? null;
    $data_to   = $extra['data_to'] ?? null;
-   
 
    // Example 1:
-   // $query_modifier = [];
+   // if ( $rating ) {
+   //     return [
+   //         'meta_query' => [
+   //             [
+   //                 'key'     => 'rating',
+   //                 'value'   => $rating,
+   //                 'compare' => '='
+   //             ]
+   //         ]
+   //     ];
+   // }
 
-   //  if ( $rating ) {
-   //      $query_modifier['meta_query'][] = [
-   //          'key'     => 'rating',
-   //          'value'   => $rating,
-   //          'compare' => '='
-   //      ];
-   //  }
-   // return $query_modifier;
-
-   // OR Example 2:
+   // Example 2:
    return [
       'post_type'  => ['post', 'book'],
       'posts_per_page'  => 10,
@@ -1264,6 +1281,7 @@ function custom_query_modifier( $args ) {
       ]		
    ];
 }
+
 ```
 
 ### Changelog
