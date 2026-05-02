@@ -1075,8 +1075,10 @@ YMCFilterGrid.removeParams('meta_query');
 
 The setExtraArgs() method allows you to pass custom parameters (extra_args) to the backend query callback.
 These parameters are sent with the AJAX request and can be accessed in PHP inside your custom WP_Query callback.
-
 This method is designed for advanced use cases where you need to extend or override query behavior dynamically.
+
+The setExtraArgs() method is intended for use with callback-based queries and works only when the following option is enabled in the plugin settings:
+Advanced → Advanced Query → Query Type → Callback.
 
 Parameters:
 - `extraArgs (object)`: An object containing custom key-value pairs to be passed to the backend.
